@@ -1,0 +1,25 @@
+api = "0.1"
+
+[affiliations]
+SGU = "Sveriges Geologiska Undersökning"
+ODF = "Ocean Data Factory - Sweden"
+GU = "Göteborg University"
+LU = "Lunds University"
+SMHI = "Sveriges Meteorologiska och Hydrologiska Institut"
+SLU = "Sveriges Lantbruksuniversitet"
+HaV = "Havs- och vattenmyndigheten"
+BGS = "Be GeoSpatial"
+ABWR = "AquaBiota"
+Medins = "Medins Havs och Vattenkonsulter"
+
+[logos]
+LOGO_SIDEBAR_URL = "./assets/sgu-logotype-blue-eng-489.png"
+LOGO_ODF_URL = "https://oceandatafactory.se/wp-content/uploads/2020/03/cropped-logo.png"
+
+[environment]
+SERVICES_DIRPATH = "./seams/services/"
+SERVICES_YAML_URL = "./app_services.yaml"
+COOKIECUTTER_SURVEY_SUBDIRS = "./cookiecutter_survey_subdirs.yaml"
+
+[data]
+SURVEY_DATA_DIRPATH = "./survey_data"

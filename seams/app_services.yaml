@@ -1,0 +1,29 @@
+# services for multipage streamlit app
+# version: 0.1
+# created_on: 2022-09-01
+# maintainer: José Beltrán - Be GeoSpatial
+
+- 
+  name: 'home'
+  description: 'SEAMS Home'
+  url: "./seams/services/home.py"
+
+- 
+  name: 'surveys'
+  description: 'Survey initialization'
+  url: "./seams/services/surveys.py"
+
+- 
+  name: "Video"
+  description: "Test video routines"
+  url: "./seams/services/video.py"
+
+- 
+  name: "Session initialization"
+  description: "Data initialization. Refers to the process of allocating memory and setting initial values for variables, data structures, or objects in a program. It is a step that happens before data preparation, and it is necessary for the data to be ready for any operation to be executed on it."
+  url: "./seams/services/session_init.py"
+
+- 
+  name: "db admin"
+  description: "Postgres database admin"
+  url: "./seams/services/db_admin.py"

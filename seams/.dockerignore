@@ -6,8 +6,15 @@ runs
 output
 coco
 storage.googleapis.com
+*depreciated*
+*DEPRECIATED*
+private/*
+secrets*
+secrets/
+leftovers*
 
 data/samples/*
+
 **/results*.txt
 *.jpg
 

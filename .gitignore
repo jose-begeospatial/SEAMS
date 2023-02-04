@@ -1,4 +1,11 @@
 begeospatial.code-workspace
+private/
+*private*
+secrets*
+secrets/
+leftovers*
+survey_data/
+
 
 # Repo-specific GitIgnore ----------------------------------------------------------------------------------------------
 *.jpg

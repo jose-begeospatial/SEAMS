@@ -215,11 +215,20 @@ def show_new_user_form():
 
 def current_user():
     users_list = db_get_users_list()
+
+    __user = get_session_state_value('user')
+
+    # Added +1 to account for the <new user> 
     
     with st.container():
         user_col1, user_col2 = st.columns(2)
         with user_col1:
-            user = st.selectbox("**Select a user:**", ['< new user >'] + users_list)
+            user = st.selectbox(
+                "**Select a user:**", ['< new user >'] + users_list,
+                index= users_list.index(__user) + 1 if len(users_list) > 0  else 0  
+                )
+            
+            
             if user == '< new user >':
                 with user_col2:
                     new_user = show_new_user_form()
@@ -227,6 +236,7 @@ def current_user():
                         users_list = db_get_users_list()
                 user_col1.button('refresh')
             else:
+                update_session_state('user', user)
                 return user
 
 def has_media(stations_dict:dict, media)->dict:
@@ -258,6 +268,18 @@ def update_session_state(key:str, value:Any)->bool:
         st.session_state[key] = value
     return True
 
+def get_session_state_value(key:str):
+    """If `key` exist in `st.session_state` return its value else None
+
+    Args:
+        key (str): Key to search in st.session_state
+
+    Returns:
+        _type_: _description_
+    """
+    if key in st.session_state:
+        return st.session_state[key]
+
 
 def show_surveyForm(
     delimeters:dict[str, str] = {'tab':'\t', 'comma':',', 'semicolon':';'}, 
@@ -272,8 +294,18 @@ def show_surveyForm(
     survey_dict = {}
 
     with st.container():
-        st.subheader('Survey details')
-        top_col1,  top_col2, top_col3  = st.columns([1,1,4])
+        h1_col, _ , msg_col = st.columns(3)
+        with h1_col:
+            st.subheader('Survey details')
+        with msg_col:
+            priority_message = st.empty()
+            missing_keys = check_required_session_keys()
+            if len(missing_keys)== 0:
+                priority_message.success('Survey initialization is done!')
+            else:
+                priority_message.warning(f'**Required**: {missing_keys}')
+        
+        top_col1,  top_col2, top_col3, top_col4  = st.columns([1,1,1,2])
         with top_col1:
             if 'surveyID' in st.session_state:
                 session_id = st.session_state['surveyID']
@@ -284,9 +316,10 @@ def show_surveyForm(
             if surveyID:
                 update_session_state(key='surveyID', value=surveyID)
 
-
         with top_col2:
             media = st.radio(label = '**Media:**', options=['photos', 'video'], index=0, horizontal=True)
+            if media:
+                st.session_state['media'] = media
         
         with st.form("survey form"):
             files_col1, files_col2 = st.columns([1,1])
@@ -300,7 +333,7 @@ def show_surveyForm(
             else:
                 videosFile_bytesio = None            
 
-            col_delimiter, col_decimal, col_encoding, _, col_media = st.columns([1,1,1,1,1])
+            col_delimiter, col_decimal, col_encoding, _, col_nstations = st.columns([1,1,1,1,1])
                     
             with col_delimiter:
                 delimeter = st.selectbox(label='**delimeter:**', options=delimeters)
@@ -311,9 +344,15 @@ def show_surveyForm(
 
             apply_media_btn = st.form_submit_button(label='load files')
 
+            if apply_media_btn:
+                missing_keys = check_required_session_keys()
+
             
-            stations_expander = st.expander(label= '**Stations table**')
-            videos_expander = st.expander(label='**Videos table**')
+            expander_col1, expander_col2 = st.columns([1,1])
+            with expander_col1:
+                stations_expander = st.expander(label= f'**Stations table**')
+            with expander_col2:
+                videos_expander = st.expander(label='**Videos table**')
             
 
             if delimeter and decimal and encoding:
@@ -321,8 +360,7 @@ def show_surveyForm(
                 _decimal = decimals[decimal]        
 
                 if stationsFile_bytesio is not None:
-                    if 'surveyID' not in st.session_state:
-                        update_session_state(key='surveyID', value=stationsFile_bytesio.name[:-4].split('__')[0])
+                    update_session_state(key='surveyID', value=stationsFile_bytesio.name[:-4].split('__')[0])
                     
                     with st.spinner(text='loading stations ...'):
                         stations_df = pd.read_csv(
@@ -330,6 +368,14 @@ def show_surveyForm(
                             delimiter = _delimeter,
                             decimal= _decimal, 
                             encoding=encoding)
+
+                    if isinstance(stations_df, pd.DataFrame):
+                        stations_dict = {stn['siteName']: stn for stn in get_stations_data(df=stations_df)}
+                        stations_dict = has_media(stations_dict=stations_dict, media=media)
+                        n_stations = len(stations_dict)
+                        update_session_state('n_stations', value=n_stations)
+                        with top_col3:
+                            st.metric('**n stations**', value= n_stations)
 
                 if videosFile_bytesio is not None:
                     with st.spinner('Loading videos ...'):
@@ -341,28 +387,46 @@ def show_surveyForm(
             
             with stations_expander:
                 if isinstance(stations_df, pd.DataFrame):
-                    st.dataframe(stations_df)
-                    stations_dict = {stn['siteName']: stn for stn in get_stations_data(df=stations_df)}
-                    stations_dict = has_media(stations_dict=stations_dict, media=media)
+                    st.dataframe(stations_df)                    
 
                 with videos_expander:
                     if isinstance(videos_df, pd.DataFrame):
-                        st.dataframe(videos_df)
-                        stations_dict = has_media(stations_dict=stations_dict, media=media)
+                        st.dataframe(videos_df)                        
                         videos_dict = get_videos_per_station(                            
                             videos_df=videos_df, 
                             callback=error_callback, 
-                            media=media
                             )
-                
-            if apply_media_btn:
-                with top_col3:
-                    if surveyID:
-                        st.success(f'Survey **{surveyID}** is ready with **{len(stations_dict)} stations**.')
-                        survey_dict[surveyID] = stations_dict
-                        return survey_dict
+                        update_session_state(key='videos_dict', value=videos_dict)
 
-                if not surveyID:
+            with top_col4:
+                if stations_dict is not None:
+                    if 'stations_interpreted' not in st.session_state:
+                        stations_to_interpret = stations_dict
+                    elif len(st.session_state['stations_interpreted']) > 0:
+                        stations_to_interpret = {k:v for k,v in stations_dict.items() if k not in st.session_state['stations_interpreted']}
+                    else:
+                        stations_to_interpret = stations_dict
+               
+                    selected_station = st.selectbox( 
+                        '**Choose station for seafloor interpretation:**',
+                        options=stations_to_interpret)
+                    
+                    if selected_station:
+                        update_session_state(
+                            key='selected_station',
+                            value=selected_station
+                            )
+                        
+                if surveyID:
+                    with top_col3:
+                        # st.info(f'**{surveyID}** loaded **{len(stations_dict)} stations**.')
+                        survey_dict[surveyID] = stations_dict
+                        update_session_state(key='survey_dict', value=survey_dict)                
+
+                    if 'stations_dict' not in st.session_state:
+                        update_session_state('stations_dict', value=stations_dict)                  
+
+                else:
                     st.error("All fields are required.")
                 
 def has_all_required_columns(
@@ -382,16 +446,15 @@ def videos_generator(subset:pd.DataFrame):
     pass
     
 
-def get_videos_per_station(videos_df: pd.DataFrame, media: str, callback: Callable = error_callback) -> dict:
+def get_videos_per_station(videos_df: pd.DataFrame, callback: Callable = error_callback) -> dict:
     required_colnames = ['siteName', 'filename', 'filepath']
     if not set(required_colnames).issubset(videos_df.columns):
-        raise ValueError(f"Missing required column names for video file. Required columns: {required_colnames}")
-        
+        error_message = f"Missing required column names for video file. Required columns: {required_colnames}"
+        callback(error_message)
+        raise ValueError(error_message)        
     _videos = {}
     for siteName, subset in videos_df.groupby('siteName'):
-        _videos[siteName] = dict(zip(subset['filename'], subset['filepath']))
-       
-    _videos
+        _videos[siteName] = dict(zip(subset['filename'], subset['filepath']))       
     return _videos
 
 
@@ -456,33 +519,73 @@ def get_stations_data(
             yield results
     
 
+    
+
+def check_required_session_keys():
+
+    required_keys = []
+    missing_keys = []
+
+    media = get_session_state_value('media')
+    
+    # quick fix as there is a refresh lag while having the s
+    if media == 'video':
+        required_keys =  ['user', 'surveyID', 'media', 'selected_station', 'survey_dict', 'videos_dict']
+    if media == 'photos':
+        required_keys =  ['user', 'surveyID', 'media', 'selected_station', 'survey_dict']
+
+ 
+    for k in required_keys:
+        if k not in st.session_state or not st.session_state[k] or st.session_state[k]=="":
+            # Making it user friendly reading of varaiables.
+            if k == 'selected_station':
+                k = 'station'
+            if k == 'survey_dict':
+                k = 'stations file'
+            if k == 'videos_dict':
+                k = 'videos file'
+            missing_keys.append(k)
+    return missing_keys
 
 
-
-
-
-
-
-      
-       
 
 
 def main():
     """
     Main function to display the header status, list of users, and allow creating a new user
     """
+    # Check is Postgres server is running
     dbstatus = header_status()
-    if dbstatus:
-        user = current_user()
-        if user:
-            user = user.replace('"',"")
-            if 'user' not in st.session_state:
-                st.session_state['user'] = user
 
-            st.sidebar.markdown(f"USER: **{user}**")
-            survey_dict = show_surveyForm()
-            if survey_dict and len(survey_dict)>0:
-                st.write(survey_dict)
+    # 
+
+
+    if dbstatus:
+        #user = current_user()
+        users_list = db_get_users_list()
+
+        with st.container():
+            user_col1, user_col2 = st.columns(2)
+            with user_col1:
+                user = st.selectbox("**Select a user:**", ['< new user >'] + users_list)
+                if user == '< new user >':
+                    with user_col2:
+                        new_user = show_new_user_form()
+                        if new_user:
+                            users_list = db_get_users_list()
+                    user_col1.button('refresh')
+
+
+            if user and user != '< new user >':
+                user = user.replace('"',"")
+                if 'user' not in st.session_state:
+                    st.session_state['user'] = user
+                if 'user' not in st.session_state:
+                    st.session_state['user'] = user
+
+        #  Shows the survey form
+        show_surveyForm()
+                
     else:
         st.warning('Please ensure the PostgreSQL is up and running.')
                               

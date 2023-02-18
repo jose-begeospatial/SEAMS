@@ -44,9 +44,6 @@ def initialize_seams():
         except Exception as e:
             st.error(f'An error ocurred while initializing the app: {e}')
 
-    
-
-
 def main():    
     LOGO_SIDEBAR_URL = st.session_state['logos']['LOGO_SIDEBAR_URL']
     LOGO_ODF_URL = st.session_state['logos']['LOGO_ODF_URL']
@@ -81,6 +78,8 @@ def main():
             services_dirpath=SERVICES_DIRPATH,
             disabled=False
             )
+    
+    show_selected_station_details()
  
 
 
@@ -90,6 +89,7 @@ if __name__ == '__main__':
         if 'logos' in st.session_state:
             main()
         else:
+            main()
             st.button(label='REFRESH APP')
 
     else:

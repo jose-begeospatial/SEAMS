@@ -1,0 +1,53 @@
+version: '3.9'
+services:
+  streamlit:
+    build:
+      context: .
+      args:
+        USER_ID: 1000   #${UID}
+        GROUP_ID: 1000  #${GID}
+      dockerfile: Dockerfile-seams
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./seams:/home/user/seams
+    environment:
+      #- DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
+      - PORT=8501
+      - LOCAL_IP=localhost
+    networks:
+      - seams-network
+      #seams-network:
+        #ipv4_address: 172.16.238.2
+
+  postgis:
+    build:
+      context:  .
+      dockerfile: Dockerfile-postgis
+    #image: mdillon/postgis:13
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: postgres  
+      #${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - seams-network
+      #seams-network:
+        #ipv4_address: 172.16.238.3
+
+volumes:
+  pgdata:
+
+networks:
+  seams-network:
+    driver: bridge
+    #ipam:
+    #  config:
+    #    - subnet: 172.16.238.0/24
+
+

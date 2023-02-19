@@ -10,6 +10,8 @@ from seams.bgs_tools import build_activities_menu, get_available_activities
 
 
 st.set_page_config(layout='wide')
+# Set the Streamlit server address to a specific IP
+#st.set_option('server.address', '172.16.238.2')
 
 # Utility dictionary
 session_initialization = OrderedDict({
@@ -79,7 +81,7 @@ def main():
             disabled=False
             )
     
-    show_selected_station_details()
+    #show_selected_station_details()
  
 
 

@@ -12,11 +12,19 @@ private/*
 secrets*
 secrets/
 leftovers*
+*Zone.Identifier
+pgdata/
 
 data/samples/*
 
 **/results*.txt
 *.jpg
+*.png
+*.mp4
+*_stations.csv 
+*_videos.csv 
+ 
+!sgu-logotype-blue-eng-489.png
 
 # Neural Network weights -----------------------------------------------------------------------------------------------
 **/*.pt
@@ -25,7 +33,6 @@ data/samples/*
 **/*.mlmodel
 **/*.torchscript
 **/*.torchscript.pt
-
 
 # Below Copied From .gitignore -----------------------------------------------------------------------------------------
 # Below Copied From .gitignore -----------------------------------------------------------------------------------------

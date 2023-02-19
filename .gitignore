@@ -5,7 +5,8 @@ secrets*
 secrets/
 leftovers*
 survey_data/
-
+*Zone.Identifier
+pgdata/
 
 # Repo-specific GitIgnore ----------------------------------------------------------------------------------------------
 *.jpg
@@ -30,6 +31,11 @@ survey_data/
 *.json
 *.cfg
 !cfg/yolov3*.cfg
+!sgu-logotype-blue-eng-489.png
+
+# stations specific ending
+*_stations.csv 
+*_videos.csv 
 
 storage.googleapis.com
 runs/*

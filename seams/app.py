@@ -7,7 +7,7 @@ from collections import OrderedDict
 import streamlit as st
 from seams.photo_utils import read_photos, test_read_photos
 from seams.bgs_tools import build_activities_menu, get_available_activities
-
+from seams.session_tools import show_selected_station_details
 
 st.set_page_config(layout='wide')
 # Set the Streamlit server address to a specific IP
@@ -23,7 +23,7 @@ session_initialization = OrderedDict({
 
 
 
-@st.cache
+@st.cache_data()
 def initialize_seams():
     """Load the configuration from the `seams.toml`file and update the session state with the config
     """
@@ -81,7 +81,7 @@ def main():
             disabled=False
             )
     
-    #show_selected_station_details()
+    show_selected_station_details()
  
 
 

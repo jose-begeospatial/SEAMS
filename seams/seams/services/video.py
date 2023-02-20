@@ -6,7 +6,7 @@ from seams.video_tools import get_video_info, extract_frames_every_n_seconds
 
 
 
-st.cache(show_spinner=True)
+st.cache_data(show_spinner=True)
 def extract_frames(video_filepath):
         
     if video_filepath is not None and os.path.isfile(video_filepath):

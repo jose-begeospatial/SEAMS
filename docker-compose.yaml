@@ -12,12 +12,13 @@ services:
     ports:
       - "8501:8501"
     volumes:
-      - ./seams:/home/user/seams
+      - ./seams/:/home/user/
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
       #- DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
       - PORT=8501
       - LOCAL_IP=localhost
+    command: stramlit run ~/seams/app.py
     networks:
       - seams-network
       #seams-network:
@@ -49,11 +50,11 @@ volumes:
 
 networks:
   seams-network:
-    # external: true
+    external: true
     # Note that we defined the `seams-network` network as an external network. This assumes that the seams-network network already exists on the host machine, and is shared among multiple Docker Compose files. If the network does not exist yet, 
     # you can create it with the following command on the command propmt:
     # `docker network create seams-network`
-    driver: bridge
+    #driver: bridge
     #ipam:
     #  config:
     #    - subnet: 172.16.238.0/24

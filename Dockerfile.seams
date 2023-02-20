@@ -37,9 +37,6 @@ RUN groupadd -g 1000 seamsgroup && \
     echo "user:seamsgroup" | chpasswd && \
     adduser user sudo
 
-# Set the working directory to /home/user
-WORKDIR /home/user
-
 # Update C env vars so compiler can find gdal
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
@@ -55,12 +52,16 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the app source code to the working directory
-COPY ./seams ./seams
+#COPY ./seams ./seams
 
 # Expose the default Streamlit port
 EXPOSE 8501
 
+# Set the working directory to /home/user
+WORKDIR /home/user/seams
+
 # Set the container command to start the app
-CMD ["streamlit", "run", "seams/app.py"]
+CMD ["streamlit", "run", "~/seams/app.py"]
+
 
 

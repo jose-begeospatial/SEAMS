@@ -2,7 +2,7 @@
 maxUploadSize = 1000
 # maxMessageSize = 500
 # Set the Streamlit server address to a specific IP
-address = '172.16.238.2'
+# address = '172.16.238.2'
 
 [theme]
 # royal blue

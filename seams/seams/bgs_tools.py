@@ -50,6 +50,7 @@ def get_available_activities(filepath: str)->OrderedDict[Any, Any]:
     Returns: 
         actitivities ordered dictionary. 
     """
+  
     assert os.path.isfile(filepath)
 
     available_activities_list = load_yaml(filepath=os.path.abspath(filepath))
@@ -72,9 +73,8 @@ def script_as_module(module_filepath: str, services_dirpath: str = './services/'
     :return: True if success else False
     :credits: https://github.com/drjobel/turpy/blob/develop/src/turpy/utils/__init__.py 
     """
-
-    assert isinstance(module_filepath, str)
     assert isinstance(services_dirpath, str)
+    assert isinstance(module_filepath, str)    
     assert os.path.isfile(os.path.abspath(module_filepath))
 
     assert os.path.isdir(os.path.abspath(services_dirpath))

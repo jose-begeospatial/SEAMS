@@ -1,5 +1,10 @@
 api = "0.1"
 
+[logos]
+LOGO_SIDEBAR_URL = "https://www.sgu.se/globalassets/startsida/ovre-droppyta-bred/sgu-logotype-blue-eng-489.png"
+LOGO_ODF_URL = "https://oceandatafactory.se/wp-content/uploads/2020/03/cropped-logo.png"
+
+
 [affiliations]
 SGU = "Sveriges Geologiska Undersökning"
 ODF = "Ocean Data Factory - Sweden"
@@ -9,17 +14,5 @@ SMHI = "Sveriges Meteorologiska och Hydrologiska Institut"
 SLU = "Sveriges Lantbruksuniversitet"
 HaV = "Havs- och vattenmyndigheten"
 BGS = "Be GeoSpatial"
-ABWR = "AquaBiota"
 Medins = "Medins Havs och Vattenkonsulter"
-
-[logos]
-LOGO_SIDEBAR_URL = "/home/user/seams/assets/sgu-logotype-blue-eng-489.png"
-LOGO_ODF_URL = "https://oceandatafactory.se/wp-content/uploads/2020/03/cropped-logo.png"
-
-[environment]
-SERVICES_DIRPATH = "/home/user/seams/seams/services/"
-SERVICES_YAML_URL = "/home/user/seams/app_services.yaml"
-COOKIECUTTER_SURVEY_SUBDIRS = "./cookiecutter_survey_subdirs.yaml"
-
-[data]
-SURVEY_DATA_DIRPATH = "./seams/survey_data"
+ABWR = "AquaBiota"

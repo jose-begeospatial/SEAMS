@@ -6,24 +6,19 @@
 - 
   name: 'home'
   description: 'SEAMS Home'
-  url: "/home/user/seams/seams/services/home.py"
+  url: "home.py"
 
 - 
   name: 'surveys'
   description: 'Survey initialization'
-  url: "/home/user/seams/seams/services/surveys.py"
+  url: "surveys.py"
 
 - 
   name: "Video"
   description: "Test video routines"
-  url: "/home/user/seams/seams/services/video.py"
-
-- 
-  name: "Session initialization"
-  description: "Data initialization. Refers to the process of allocating memory and setting initial values for variables, data structures, or objects in a program. It is a step that happens before data preparation, and it is necessary for the data to be ready for any operation to be executed on it."
-  url: "/home/user/seams/seams/services/session_init.py"
+  url: "video.py"
 
 - 
   name: "db admin"
   description: "Postgres database admin"
-  url: "/home/user/seams/seams/services/db_admin.py"
+  url: "db_admin.py"

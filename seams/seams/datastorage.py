@@ -1,6 +1,6 @@
 import yaml
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Dict
 
 
@@ -11,7 +11,7 @@ class StorageStrategy:
     Attributes:
         data (Dict): A dictionary representing the data being managed by the storage strategy.
     """
-    data: Dict
+    data: Dict = field(default_factory=dict)
 
     def store_data(self, data: Dict):
         """Stores the given data in the storage strategy.
@@ -64,8 +64,16 @@ class YamlStorage(StorageStrategy):
     """
 
 
-    file_path: str 
-    data: Dict = {}
+    file_path: str = field(default_factory = str)
+    data: Dict = field(default_factory=dict)
+
+
+    def __post_init__(self):
+        """Checks if the YAML file exists and loads it if it does, otherwise initializes the `data` property to an empty dictionary."""
+        if os.path.isfile(self.file_path):
+            self.load_data()
+        else:
+            self.data = {}
 
     def store_data(self):
         """Stores the data in the YAML file."""
@@ -117,8 +125,8 @@ class DataStore:
             storage_strategy (StorageStrategy): The storage strategy used to store and retrieve data.
             data (Dict): The data being managed by the DataStore object.
         """
-    storage_strategy: StorageStrategy
-    data: Dict = {}
+    storage_strategy: StorageStrategy    
+    data: Dict = field(default_factory=dict)
 
 
     def store_data(self, data:Dict):

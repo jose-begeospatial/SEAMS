@@ -84,29 +84,8 @@ def check_service_path(services_dirpath, default_dirpath:str = '/seams/seams/ser
         if os.path.isdir(services_dirpath):
             return services_dirpath
 
-def check_module_filepath(module_filepath, default_dirpath:str = '/seams/seams/services/' ):
-    """Sanity check to build the correct paths for the app services.
 
-    Args:
-        services_dirpath (_type_): path string  for the services directory
-        default_dirpath (str, optional): _description_. Defaults to '/seams/seams/services/'.
-
-    Returns:
-        str: `services_dirpath` if exist else `None`
-    """
-
-    if os.path.isdir(services_dirpath):
-        return services_dirpath
-    else:
-        # Try to construct dirpath
-        working_dir = os.getcwd()
-        services_dirpath = os.path.join(working_dir, default_dirpath)
-        if os.path.isdir(services_dirpath):
-            return services_dirpath
-
-
-
-def script_as_module(module_filepath: str, services_dirpath: str = '/home/user/seams/seams/seams/services/'):
+def script_as_module(module_filepath: str, services_dirpath: str):
     """Loads a python script, register as module, and makes it available for the package path. Super geek powers!
 
     Usually used to populate services in a streamlit app.
@@ -116,16 +95,13 @@ def script_as_module(module_filepath: str, services_dirpath: str = '/home/user/s
     """
     
     assert isinstance(services_dirpath, str)
-    assert isinstance(module_filepath, str)   
-
-    st.write(services_dirpath) 
-        
-    # services_dirpath = check_service_path(services_dirpath=services_dirpath)
+    assert isinstance(module_filepath, str)
     assert os.path.isdir(os.path.abspath(services_dirpath))
 
-    
-    
-    assert os.path.isfile(os.path.abspath(module_filepath))
+    # 
+    module_filepath = os.path.join(services_dirpath, module_filepath)
+
+    #assert os.path.isfile(os.path.abspath(module_filepath))
 
     # Loading by script module
     module_name = os.path.basename(
@@ -134,7 +110,7 @@ def script_as_module(module_filepath: str, services_dirpath: str = '/home/user/s
     # type: ignore
     spec = spec_from_file_location(
         name=module_name,
-        location=module_filepath,
+        location= module_filepath,
         submodule_search_locations=[services_dirpath]
     )
 
@@ -176,6 +152,7 @@ def build_activities_menu(activities_dict: OrderedDict, label: str, key: str, se
             
             selected_activity, module_filepath = list(selection_tuple)
             # Super geek powers!
+            
             script_as_module(module_filepath=module_filepath, services_dirpath = services_dirpath)
 
         return selected_activity, activities_dict

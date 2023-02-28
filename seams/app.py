@@ -5,7 +5,6 @@ import psycopg2
 from pathlib import Path
 from collections import OrderedDict
 import streamlit as st
-from seams.photo_utils import read_photos, test_read_photos
 from seams.bgs_tools import build_activities_menu, get_available_services
 from seams.session_tools import show_selected_station_details
 
@@ -25,7 +24,23 @@ session_initialization = OrderedDict({
 def initialize_seams():
     """Load the configuration from the `seams.toml`file and update the session state with the config
     """
-    toml_path = os.path.join(Path(__file__).resolve().parents[0], 'seams', 'seams.toml')
+    APP_DIRPATH = Path(__file__).resolve().parents[0]
+    DATA_DIRPATH = os.path.join(APP_DIRPATH, 'data')
+    SERVICES_DIRPATH = os.path.join(APP_DIRPATH, 'seams', 'services')
+    ASSETS_DIRPATH = os.path.join(APP_DIRPATH, 'assets')
+    APP_SERVICES_YAML = os.path.join(APP_DIRPATH, 'app_services.yaml')
+
+    # 
+    st.session_state['APP_DIRPATH'] = APP_DIRPATH
+    st.session_state['DATA_DIRPATH'] = DATA_DIRPATH
+    st.session_state['SERVICES_DIRPATH'] = SERVICES_DIRPATH
+    st.session_state['ASSETS_DIRPATH'] = ASSETS_DIRPATH
+    st.session_state['APP_SERVICES_YAML'] = APP_SERVICES_YAML
+
+    # toml_path with 
+    toml_path = os.path.join(APP_DIRPATH, 'seams', 'seams.toml')   
+    
+    #
     with st.spinner(text='inititializing app'):        
         # load the seams.toml file with custom config for the App
         try:
@@ -44,7 +59,8 @@ def initialize_seams():
         except Exception as e:
             st.error(f'An error ocurred while initializing the app: {e}')
 
-def main():  
+def main():
+
     if 'logos' in st.session_state:
         LOGO_SIDEBAR_URL = st.session_state['logos']['LOGO_SIDEBAR_URL']
         LOGO_ODF_URL = st.session_state['logos']['LOGO_ODF_URL']
@@ -52,12 +68,11 @@ def main():
         LOGO_SIDEBAR_URL = ""
         LOGO_ODF_URL = ""
 
-    APP_SERVICES_YAML = st.session_state['environment']['APP_SERVICES_YAML']
-    SERVICES_DIRPATH = st.session_state['environment']['SERVICES_DIRPATH']
+    APP_SERVICES_YAML = st.session_state['APP_SERVICES_YAML']       
+    SERVICES_DIRPATH = st.session_state['SERVICES_DIRPATH']
     
     if LOGO_SIDEBAR_URL: st.sidebar.image(LOGO_SIDEBAR_URL)
-    sidebar_expander = st.sidebar.expander(label='**SEAMS** - PLAN SUBSIM', )
-    #session_expander = st.sidebar.expander(label='Current session')
+    sidebar_expander = st.sidebar.expander(label='**SEAMS** - PLAN SUBSIM')
 
     with sidebar_expander:
         st.title('SEAMS')
@@ -73,9 +88,7 @@ def main():
     core_activities =  get_available_services(
         services_filepath=os.path.abspath(APP_SERVICES_YAML)        
     )
-    filepath = os.path.abspath(APP_SERVICES_YAML)
-
-    
+       
     build_activities_menu(
             activities_dict=core_activities, 
             label='**MENU:**', 
@@ -87,15 +100,8 @@ def main():
     show_selected_station_details()
  
 
-
-
 if __name__ == '__main__':
     if initialize_seams():
-        if 'logos' in st.session_state:
-            main()
-        else:
-            main()
-            st.button(label='REFRESH APP')
-
+        main()
     else:
         st.error('The app failed initialization. Report issue to mantainers in github')

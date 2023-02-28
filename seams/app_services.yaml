@@ -6,19 +6,19 @@
 - 
   name: 'home'
   description: 'SEAMS Home'
-  url: "/home/user/seams/seams/services/home.py"
+  url: "/home/user/seams/seams/seams/services/home.py"
 
 - 
   name: 'surveys'
   description: 'Survey initialization'
-  url: "/home/user/seams/seams/services/surveys.py"
+  url: "/home/user/seams/seams/seams/services/surveys.py"
 
 - 
   name: "Video"
   description: "Test video routines"
-  url: "/home/user/seams/seams/services/video.py"
+  url: "/home/user/seams/seams/seams/services/video.py"
 
 - 
   name: "db admin"
   description: "Postgres database admin"
-  url: "/home/user/seams/seams/services/db_admin.py"
+  url: "/home/user/seams/seams/seams/services/db_admin.py"

@@ -13,12 +13,13 @@ ABWR = "AquaBiota"
 Medins = "Medins Havs och Vattenkonsulter"
 
 [logos]
-LOGO_SIDEBAR_URL = "/home/user/seams/assets/sgu-logotype-blue-eng-489.png"
+LOGO_SIDEBAR_URL = "https://www.sgu.se/globalassets/startsida/ovre-droppyta-bred/sgu-logotype-blue-eng-489.png"
 LOGO_ODF_URL = "https://oceandatafactory.se/wp-content/uploads/2020/03/cropped-logo.png"
 
 [environment]
-SERVICES_DIRPATH = "/home/user/seams/seams/services/"
-SERVICES_YAML_URL = "/home/user/seams/app_services.yaml"
+# paths are relative to docker container paths
+SERVICES_DIRPATH = "/home/user/seams/seams/seams/services/"
+APP_SERVICES_YAML = "/home/user/seams/seams/app_services.yaml"
 COOKIECUTTER_SURVEY_SUBDIRS = "./cookiecutter_survey_subdirs.yaml"
 
 [data]

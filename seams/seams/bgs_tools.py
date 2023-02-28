@@ -43,7 +43,7 @@ def load_yaml(filepath: str):
 
 
 
-def get_available_activities(filepath: str)->OrderedDict[Any, Any]:
+def get_available_services(services_filepath: str)->OrderedDict[Any, Any]:
     """Retrieves from a yaml file the services to show to the user as a sidebar menu.
     Used to create multipages apps using Streamlit.
 
@@ -51,9 +51,9 @@ def get_available_activities(filepath: str)->OrderedDict[Any, Any]:
         actitivities ordered dictionary. 
     """
   
-    assert os.path.isfile(filepath)
+    assert os.path.isfile(services_filepath)
 
-    available_activities_list = load_yaml(filepath=os.path.abspath(filepath))
+    available_activities_list = load_yaml(filepath=os.path.abspath(services_filepath))
 
     if available_activities_list:
 
@@ -64,8 +64,49 @@ def get_available_activities(filepath: str)->OrderedDict[Any, Any]:
     else: 
         return None
 
+def check_service_path(services_dirpath, default_dirpath:str = '/seams/seams/services/' ):
+    """Sanity check to build the correct paths for the app services.
 
-def script_as_module(module_filepath: str, services_dirpath: str = './services/'):
+    Args:
+        services_dirpath (_type_): path string  for the services directory
+        default_dirpath (str, optional): _description_. Defaults to '/seams/seams/services/'.
+
+    Returns:
+        str: `services_dirpath` if exist else `None`
+    """
+
+    if os.path.isdir(services_dirpath):
+        return services_dirpath
+    else:
+        # Try to construct dirpath
+        working_dir = os.getcwd()
+        services_dirpath = os.path.join(working_dir, default_dirpath)
+        if os.path.isdir(services_dirpath):
+            return services_dirpath
+
+def check_module_filepath(module_filepath, default_dirpath:str = '/seams/seams/services/' ):
+    """Sanity check to build the correct paths for the app services.
+
+    Args:
+        services_dirpath (_type_): path string  for the services directory
+        default_dirpath (str, optional): _description_. Defaults to '/seams/seams/services/'.
+
+    Returns:
+        str: `services_dirpath` if exist else `None`
+    """
+
+    if os.path.isdir(services_dirpath):
+        return services_dirpath
+    else:
+        # Try to construct dirpath
+        working_dir = os.getcwd()
+        services_dirpath = os.path.join(working_dir, default_dirpath)
+        if os.path.isdir(services_dirpath):
+            return services_dirpath
+
+
+
+def script_as_module(module_filepath: str, services_dirpath: str = '/home/user/seams/seams/seams/services/'):
     """Loads a python script, register as module, and makes it available for the package path. Super geek powers!
 
     Usually used to populate services in a streamlit app.
@@ -73,11 +114,18 @@ def script_as_module(module_filepath: str, services_dirpath: str = './services/'
     :return: True if success else False
     :credits: https://github.com/drjobel/turpy/blob/develop/src/turpy/utils/__init__.py 
     """
+    
     assert isinstance(services_dirpath, str)
-    assert isinstance(module_filepath, str)    
-    assert os.path.isfile(os.path.abspath(module_filepath))
+    assert isinstance(module_filepath, str)   
 
+    st.write(services_dirpath) 
+        
+    # services_dirpath = check_service_path(services_dirpath=services_dirpath)
     assert os.path.isdir(os.path.abspath(services_dirpath))
+
+    
+    
+    assert os.path.isfile(os.path.abspath(module_filepath))
 
     # Loading by script module
     module_name = os.path.basename(

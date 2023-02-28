@@ -6,7 +6,7 @@ from pathlib import Path
 from collections import OrderedDict
 import streamlit as st
 from seams.photo_utils import read_photos, test_read_photos
-from seams.bgs_tools import build_activities_menu, get_available_activities
+from seams.bgs_tools import build_activities_menu, get_available_services
 from seams.session_tools import show_selected_station_details
 
 st.set_page_config(layout='wide')
@@ -22,8 +22,6 @@ session_initialization = OrderedDict({
 }})
 
 
-
-@st.cache_data()
 def initialize_seams():
     """Load the configuration from the `seams.toml`file and update the session state with the config
     """
@@ -46,13 +44,18 @@ def initialize_seams():
         except Exception as e:
             st.error(f'An error ocurred while initializing the app: {e}')
 
-def main():    
-    LOGO_SIDEBAR_URL = st.session_state['logos']['LOGO_SIDEBAR_URL']
-    LOGO_ODF_URL = st.session_state['logos']['LOGO_ODF_URL']
-    SERVICES_YAML_URL = st.session_state['environment']['SERVICES_YAML_URL']
-    SERVICES_DIRPATH = st.session_state['environment']['SERVICES_DIRPATH']
+def main():  
+    if 'logos' in st.session_state:
+        LOGO_SIDEBAR_URL = st.session_state['logos']['LOGO_SIDEBAR_URL']
+        LOGO_ODF_URL = st.session_state['logos']['LOGO_ODF_URL']
+    else:
+        LOGO_SIDEBAR_URL = ""
+        LOGO_ODF_URL = ""
 
-    st.sidebar.image(LOGO_SIDEBAR_URL)
+    APP_SERVICES_YAML = st.session_state['environment']['APP_SERVICES_YAML']
+    SERVICES_DIRPATH = st.session_state['environment']['SERVICES_DIRPATH']
+    
+    if LOGO_SIDEBAR_URL: st.sidebar.image(LOGO_SIDEBAR_URL)
     sidebar_expander = st.sidebar.expander(label='**SEAMS** - PLAN SUBSIM', )
     #session_expander = st.sidebar.expander(label='Current session')
 
@@ -63,14 +66,14 @@ def main():
             """ *[PLAN-SUBSIM](https://oceandatafactory.se/plan-subsim/)*
             a national implementation of a PLatform for ANalysis of SUBSea IMages.
             """)
-        st.image(LOGO_ODF_URL)
-
+        if LOGO_ODF_URL: st.image(LOGO_ODF_URL)
 
 
     # Load the yaml with core services as activities    
-    core_activities =  get_available_activities(
-        filepath=os.path.abspath(SERVICES_YAML_URL)        
+    core_activities =  get_available_services(
+        services_filepath=os.path.abspath(APP_SERVICES_YAML)        
     )
+    filepath = os.path.abspath(APP_SERVICES_YAML)
 
     
     build_activities_menu(

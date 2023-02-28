@@ -1,7 +1,8 @@
-import yaml
 import os
+from typing import Dict, Callable
+import yaml
 from dataclasses import dataclass, field
-from typing import Callable, Dict
+import chardet
 
 
 @dataclass
@@ -19,23 +20,23 @@ class StorageStrategy:
         Args:
             data (Dict): The data to store in the storage strategy.
         """
-        pass    
-    
+        self.data = data
+
     def load_data(self):
         """Loads the data from the storage strategy into the `data` attribute."""
         pass
 
-    def update_data(self, update_func:Callable):
+    def update_data(self, update_func: Callable):
         """Updates the data in the storage strategy using the given update function.
 
         Args:
             update_func (Callable): A function that takes the current data as input and returns the updated data.
         """
-        pass
-        
+        self.data = update_func(self.data)
+
     def delete_data(self):
         """Deletes the data stored in the storage strategy."""
-        pass
+        self.data = {}
 
 
 @dataclass
@@ -58,15 +59,10 @@ class YamlStorage(StorageStrategy):
     ```
 
     Args:
-        StorageStrategy (_type_): The parent class that defines the common methods and properties of all storage strategies.
         file_path (str): The path to the YAML file to store the data in.
-        data (Dict): The initial data to store in the YAML file. Default is an empty dictionary.
     """
 
-
-    file_path: str = field(default_factory = str)
-    data: Dict = field(default_factory=dict)
-
+    file_path: str = field(default_factory=str)
 
     def __post_init__(self):
         """Checks if the YAML file exists and loads it if it does, otherwise initializes the `data` property to an empty dictionary."""
@@ -75,21 +71,29 @@ class YamlStorage(StorageStrategy):
         else:
             self.data = {}
 
-    def store_data(self):
+    def store_data(self, data:Dict):
         """Stores the data in the YAML file."""
+        
         with open(self.file_path, 'w') as f:
-            yaml.safe_dump(self.data, f)
+            yaml.safe_dump(self.data, f, encoding='utf-8')
+            self.data = data
 
     def load_data(self):
-        """Loads the data from the YAML file into the `data` attribute."""
+        """Loads the data from the YAML file into the `data` attribute of the `StorageStrategy` class."""
         try:
-            with open(self.file_path, 'r') as f:
-                self.data = yaml.safe_load(f)
+            with open(self.file_path, 'rb') as f:
+                yaml_bytes = f.read()
+
+            # Use chardet to detect the encoding of the yaml file
+            result = chardet.detect(yaml_bytes)
+            encoding = 'utf-8' if result['encoding'] is None else result['encoding']
+            yaml_str = yaml_bytes.decode(encoding=encoding)
+
+            self.data = yaml.safe_load(yaml_str)
         except (FileNotFoundError, IOError):
             self.data = {}
-     
 
-    def update_data(self, update_func:Callable):
+    def update_data(self, update_func: Callable):
         """Updates the data in the YAML file using the given update function.
 
         Args:
@@ -97,8 +101,7 @@ class YamlStorage(StorageStrategy):
         """
         self.load_data()
         self.data = update_func(self.data)
-        self.store_data()
-
+        self.store_data(data=self.data)
 
     def delete_data(self):
         """Deletes the YAML file containing the data."""
@@ -112,22 +115,18 @@ class YamlStorage(StorageStrategy):
 class DataStore:
     """The DataStore class is responsible for managing the storage strategy used to store and retrieve data.
 
-        Usage example: 
+        Usage example:
         ```
-        data_store = DataStore(JsonStorage('data.json'))
+        data_store = DataStore(YamlStorage('data.yaml'))
         data = {'key': 'value'}
         data_store.store_data(data)
-
         loaded_data = data_store.load_data()
-        ```
+        ````
 
-        Attributes:
-            storage_strategy (StorageStrategy): The storage strategy used to store and retrieve data.
-            data (Dict): The data being managed by the DataStore object.
-        """
-    storage_strategy: StorageStrategy    
-    data: Dict = field(default_factory=dict)
-
+    Attributes:
+        storage_strategy (StorageStrategy): The storage strategy used to store and retrieve data.
+    """
+    storage_strategy: StorageStrategy
 
     def store_data(self, data:Dict):
         """Stores the given data using the current storage strategy.
@@ -135,30 +134,23 @@ class DataStore:
         Args:
             data (Dict): The data to store.
         """
-        self.storage_strategy.data = self.data
-        self.storage_strategy.store_data()
-    
-    def load_data(self):
-        """Loads the data from the current storage strategy into the `data` attribute."""
+        self.storage_strategy.data = data
+        self.storage_strategy.store_data(data=self.storage_strategy.data)
+
+    def load_data(self) -> Dict:
+        """Loads the data from the current storage strategy into the `data` attribute of the `StorageStrategy` class and returns it."""
         self.storage_strategy.load_data()
-        self.data = self.storage_strategy.data
-    
-    def update_data(self, update_func:Callable):
+        return self.storage_strategy.data
+
+    def update_data(self, update_func: Callable):
         """Updates the data using the current storage strategy and the given update function.
 
         Args:
             update_func (Callable): A function that takes the current data as input and returns the updated data.
         """
         self.storage_strategy.update_data(update_func)
-        self.data = self.storage_strategy.data
-        
+
     def delete_data(self):
         """Deletes the data stored by the current storage strategy."""
-        self.storage_strategy.delete_data()
-        self.data = {}
+        self.storage_strategy.delete_data() 
 
-
-
-
-
- 

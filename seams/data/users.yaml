@@ -1,18 +1,14 @@
 users:
-  - 
-    name: Cecilia Edbom Blomstrand
-    affiliation: SGU - Sveriges Geologiska Undersökning
-  - 
-    name: Francis Freire    
-    affiliation: SGU - Sveriges Geologiska Undersökning
-  - 
-    name: Gustav Kagesten    
-    affiliation: SGU - Sveriges Geologiska Undersökning
-  -
-    name: José Beltrán
-    affiliation: BGS - Be GeoSpatial AB
-  -
-    name: Andreas Emanuelsson
-    affiliation: Medins - Medins havs och vattenkonsulter AB
-  
+- affiliation: ODF - Ocean Data Factory - Sweden
+  name: Test User
+- affiliation: "SGU - Sveriges Geologiska Undersökning"
+  name: Cecilia Edbom Blomstrand
+- affiliation: "SGU - Sveriges Geologiska Undersökning"
+  name: Francis Freire
+- affiliation: "SGU - Sveriges Geologiska Undersökning"
+  name: Gustav Kagesten
+- affiliation: BGS - Be GeoSpatial AB
+  name: "José Beltrán"
+- affiliation: Medins - Medins havs och vattenkonsulter AB
+  name: Andreas Emanuelsson
 

@@ -9,9 +9,18 @@ from dataclasses import dataclass, field
 from datetime import datetime 
 import pandas as pd
 
-       
 
-def show_new_user_form(ds_user:DataStore):
+# Globals
+
+APP_DIRPATH = st.session_state['APP_DIRPATH']
+DATA_DIRPATH = st.session_state['DATA_DIRPATH']
+SERVICES_DIRPATH = st.session_state['SERVICES_DIRPATH']
+ASSETS_DIRPATH = st.session_state['ASSETS_DIRPATH']
+APP_SERVICES_YAML = st.session_state['APP_SERVICES_YAML']
+USERS_FILEPATH = st.session_state['USERS_FILEPATH']
+
+
+def show_new_user_form(ds_users:DataStore):
     new_user = None
 
     if 'affiliations' in st.session_state:
@@ -23,7 +32,7 @@ def show_new_user_form(ds_user:DataStore):
     with userForm:
         st.write('**Create a new user**')
         name = st.text_input("Name:", placeholder='user name')
-        email = st.text_input("Email:", placeholder='user email address')
+        # email = st.text_input("Email:", placeholder='user email address')
         affiliations = st.session_state['affiliations']
 
         if affiliations:
@@ -41,18 +50,18 @@ def show_new_user_form(ds_user:DataStore):
                 st.error("All fields are required.")            
             else:
                 try:
-                    new_user = Users(
-                        name=name,
-                        email=email,
-                        affiliation=affiliation,
-                    )
+                    new_user = {'name': name,
+                                'affiliation': affiliation}
+                    ds_users.storage_strategy.data['users'].append(new_user)
+                    ds_users.store_data(data=ds_users.storage_strategy.data)
+                    st.write(ds_users.storage_strategy.data)
                     #
-                    if db_insert_new_user(user=new_user):
-                        st.success(f"**User:** `{new_user.name}` registered!")
+                    
                 except Exception as e:
                     st.error(e)
                 finally:
-                    db_get_users_list()
+                    st.success(f"**User:** `{new_user}` registered!")
+                    
                     return new_user
         
 
@@ -341,21 +350,13 @@ def check_required_session_keys():
     return missing_keys
 
 
-
-
 def main():
     """
     Main function to display the header status, list of users, and allow creating a new user
     """
     
-    APP_DIRPATH = st.session_state['APP_DIRPATH']
-    DATA_DIRPATH = st.session_state['DATA_DIRPATH']
-    SERVICES_DIRPATH = st.session_state['SERVICES_DIRPATH']
-    ASSETS_DIRPATH = st.session_state['ASSETS_DIRPATH']
-    APP_SERVICES_YAML = st.session_state['APP_SERVICES_YAML']
-    
-    ds_users = DataStore(YamlStorage('/home/user/seams/users.yaml'))
-    
+    ds_users = DataStore(YamlStorage(file_path=USERS_FILEPATH))
+    users_list = [user['name'] for user in ds_users.storage_strategy.data['users'] ]
 
     with st.container():
         user_col1, user_col2 = st.columns(2)
@@ -363,9 +364,7 @@ def main():
             user = st.selectbox("**Select a user:**", ['< new user >'] + users_list)
             if user == '< new user >':
                 with user_col2:
-                    new_user = show_new_user_form()
-                    if new_user:
-                        users_list = db_get_users_list()
+                    new_user = show_new_user_form(ds_users)
                 user_col1.button('refresh')
 
 
@@ -381,5 +380,5 @@ def main():
                 
         
 # ----------
-main()
 
+main()

@@ -29,13 +29,15 @@ def initialize_seams():
     SERVICES_DIRPATH = os.path.join(APP_DIRPATH, 'seams', 'services')
     ASSETS_DIRPATH = os.path.join(APP_DIRPATH, 'assets')
     APP_SERVICES_YAML = os.path.join(APP_DIRPATH, 'app_services.yaml')
-
+    USERS_FILEPATH = os.path.join(DATA_DIRPATH, 'users.yaml')
+    
     # 
     st.session_state['APP_DIRPATH'] = APP_DIRPATH
     st.session_state['DATA_DIRPATH'] = DATA_DIRPATH
     st.session_state['SERVICES_DIRPATH'] = SERVICES_DIRPATH
     st.session_state['ASSETS_DIRPATH'] = ASSETS_DIRPATH
     st.session_state['APP_SERVICES_YAML'] = APP_SERVICES_YAML
+    st.session_state['USERS_FILEPATH'] = USERS_FILEPATH
 
     # toml_path with 
     toml_path = os.path.join(APP_DIRPATH, 'seams', 'seams.toml')   

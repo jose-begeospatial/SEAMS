@@ -99,7 +99,7 @@ class YamlStorage(StorageStrategy):
         Args:
             update_func (Callable): A function that takes the current data as input and returns the updated data.
         """
-        self.load_data()
+        #self.load_data()
         self.data = update_func(self.data)
         self.store_data(data=self.data)
 

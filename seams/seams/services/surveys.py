@@ -18,6 +18,12 @@ SERVICES_DIRPATH = st.session_state['SERVICES_DIRPATH']
 ASSETS_DIRPATH = st.session_state['ASSETS_DIRPATH']
 APP_SERVICES_YAML = st.session_state['APP_SERVICES_YAML']
 USERS_FILEPATH = st.session_state['USERS_FILEPATH']
+SURVEY_FILEPATH = os.path.join(DATA_DIRPATH, 'survey.yaml')
+if 'SURVEY_FILEPATH' not in st.session_state:
+    st.session_state['SURVEY_FILEPATH'] = SURVEY_FILEPATH
+
+#
+ds_survey = DataStore(YamlStorage(file_path=SURVEY_FILEPATH))
 
 
 def show_new_user_form(ds_users:DataStore):
@@ -54,12 +60,14 @@ def show_new_user_form(ds_users:DataStore):
                                 'affiliation': affiliation}
                     ds_users.storage_strategy.data['users'].append(new_user)
                     ds_users.store_data(data=ds_users.storage_strategy.data)
-                    st.write(ds_users.storage_strategy.data)
+                    st.session_state['new_user'] = new_user
+                    
                     #
                     
                 except Exception as e:
                     st.error(e)
                 finally:
+                    
                     st.success(f"**User:** `{new_user}` registered!")
                     
                     return new_user
@@ -142,6 +150,17 @@ def show_surveyForm(
 
             if surveyID:
                 update_session_state(key='surveyID', value=surveyID)
+                # Check survey datastorage for data
+                data = ds_survey.storage_strategy.data
+                data['current_surveyID'] = surveyID
+
+                if 'surveys' not in data:
+                    data['surveys'] = {}
+                if surveyID not in data['surveys']:
+                    data['surveys'][surveyID] = {}
+
+                # Saving to datastorage
+                ds_survey.store_data(data=data)
 
         with top_col2:
             media = st.radio(label = '**Media:**', options=['photos', 'video'], index=0, horizontal=True)
@@ -197,12 +216,30 @@ def show_surveyForm(
                             encoding=encoding)
 
                     if isinstance(stations_df, pd.DataFrame):
-                        stations_dict = {stn['siteName']: stn for stn in get_stations_data(df=stations_df)}
-                        stations_dict = has_media(stations_dict=stations_dict, media=media)
-                        n_stations = len(stations_dict)
-                        update_session_state('n_stations', value=n_stations)
-                        with top_col3:
-                            st.metric('**n stations**', value= n_stations)
+                        stations_dict = get_stations_data(df=stations_df)
+                        if stations_dict:
+                            n_stations = len(stations_dict)
+                            update_session_state('n_stations', value=n_stations)
+
+                            data =  ds_survey.storage_strategy.data
+
+                            if 'surveys' not in data:
+                                data['surveys'] = {}                        
+                            if surveyID not in data['surveys']:
+                                data['surveys'][surveyID] = {}
+                            if 'stations' not in data['surveys'][surveyID]:
+                                data['surveys'][surveyID]['stations'] = {}
+                            #    
+                            data['surveys'][surveyID]['n_stations'] = n_stations
+                            data['surveys'][surveyID]['stations'] = stations_dict
+                            # save to datastorage
+                            ds_survey.store_data(data=data)
+                            
+                            stations_dict = has_media(stations_dict=stations_dict, media=media)
+                        
+                        
+                            with top_col3:
+                                st.metric('**n stations**', value= n_stations)
 
                 if videosFile_bytesio is not None:
                     with st.spinner('Loading videos ...'):
@@ -224,6 +261,10 @@ def show_surveyForm(
                             callback=error_callback, 
                             )
                         update_session_state(key='videos_dict', value=videos_dict)
+                        if surveyID in ds_survey.storage_strategy.data['surveys']:
+                            ds_survey.storage_strategy.data['surveys'][surveyID]['videos'] = videos_dict
+
+
 
             with top_col4:
                 if stations_dict is not None:
@@ -234,19 +275,24 @@ def show_surveyForm(
                     else:
                         stations_to_interpret = stations_dict
                
-                    selected_station = st.selectbox( 
+                    current_station = st.selectbox( 
                         '**Choose station for seafloor interpretation:**',
                         options=stations_to_interpret)
                     
-                    if selected_station:
+                    if current_station:
+                        if 'current_station' not in ds_survey.storage_strategy.data:
+                            ds_survey.storage_strategy.data['current_station'] = current_station
+                        if current_station != ds_survey.storage_strategy.data['current_station']:
+                            ds_survey.storage_strategy.data['current_station'] = current_station
+                            ds_survey.store_data(data=ds_survey.storage_strategy.data)
+
                         update_session_state(
-                            key='selected_station',
-                            value=selected_station
+                            key='current_station',
+                            value=current_station
                             )
                         
                 if surveyID:
-                    with top_col3:
-                        # st.info(f'**{surveyID}** loaded **{len(stations_dict)} stations**.')
+                    with top_col3:                        
                         survey_dict[surveyID] = stations_dict
                         update_session_state(key='survey_dict', value=survey_dict)                
 
@@ -307,18 +353,24 @@ def get_stations_data(
         # regex to find all the columns names that matches `measurementType` at any place in the string.
         measurementType_cols = sorted(list(filter(r.search, file_columns )))
        
-        results = {}
-        for i, row in df.iterrows():
+        results_list = []
+        for _, row in df.iterrows():
+            row_dict= {}
             for col in required_colnames:
-                results[col] = row.get(col)
-            
-            if len(measurementType_cols)>0:
-                measurements = {}
-                for col in measurementType_cols:                    
-                    measurements[col] = row[col]
-                if len(measurements)>0:
-                    results['measurementTypes'] = measurements
-            yield results
+                row_dict[col] = row.get(col)
+
+            measurements = {}
+            for col in measurementType_cols:
+                measurements[col] = row[col]
+                       
+            if len(measurements)>0:
+                row_dict['measurementTypes'] = measurements
+                
+            results_list.append(row_dict)
+
+        stations_dict = {item['siteName']: item for item in results_list}
+        
+        return stations_dict
     
 
     
@@ -332,15 +384,15 @@ def check_required_session_keys():
     
     # quick fix as there is a refresh lag while having the s
     if media == 'video':
-        required_keys =  ['user', 'surveyID', 'media', 'selected_station', 'survey_dict', 'videos_dict']
+        required_keys =  ['user', 'surveyID', 'media', 'current_station', 'survey_dict', 'videos_dict']
     if media == 'photos':
-        required_keys =  ['user', 'surveyID', 'media', 'selected_station', 'survey_dict']
+        required_keys =  ['user', 'surveyID', 'media', 'current_station', 'survey_dict']
 
  
     for k in required_keys:
         if k not in st.session_state or not st.session_state[k] or st.session_state[k]=="":
             # Making it user friendly reading of varaiables.
-            if k == 'selected_station':
+            if k == 'current_station':
                 k = 'station'
             if k == 'survey_dict':
                 k = 'stations file'
@@ -362,6 +414,9 @@ def main():
         user_col1, user_col2 = st.columns(2)
         with user_col1:
             user = st.selectbox("**Select a user:**", ['< new user >'] + users_list)
+            st.session_state['user'] = user
+            
+
             if user == '< new user >':
                 with user_col2:
                     new_user = show_new_user_form(ds_users)
@@ -369,14 +424,14 @@ def main():
 
 
         if user and user != '< new user >':
-            user = user.replace('"',"")
-            if 'user' not in st.session_state:
-                st.session_state['user'] = user
-            if 'user' not in st.session_state:
-                st.session_state['user'] = user
+            ds_survey.storage_strategy.data['current_user'] = user
+            st.session_state['user'] = user
+
 
         #  Shows the survey form
         show_surveyForm()
+
+    st.write(ds_survey.storage_strategy.data)
                 
         
 # ----------

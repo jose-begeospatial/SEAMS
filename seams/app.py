@@ -1,7 +1,6 @@
 import os
-import sys
 import toml
-import psycopg2
+import base64
 from pathlib import Path
 from collections import OrderedDict
 import streamlit as st
@@ -30,6 +29,7 @@ def initialize_seams():
     ASSETS_DIRPATH = os.path.join(APP_DIRPATH, 'assets')
     APP_SERVICES_YAML = os.path.join(APP_DIRPATH, 'app_services.yaml')
     USERS_FILEPATH = os.path.join(DATA_DIRPATH, 'users.yaml')
+    LOGO_BEGEOSPATIAL = os.path.join(ASSETS_DIRPATH, 'Logo_BeGeospatial_black_text.png')
     
     # 
     st.session_state['APP_DIRPATH'] = APP_DIRPATH
@@ -38,6 +38,7 @@ def initialize_seams():
     st.session_state['ASSETS_DIRPATH'] = ASSETS_DIRPATH
     st.session_state['APP_SERVICES_YAML'] = APP_SERVICES_YAML
     st.session_state['USERS_FILEPATH'] = USERS_FILEPATH
+    st.session_state['LOGO_BEGEOSPATIAL'] = LOGO_BEGEOSPATIAL
 
     # toml_path with 
     toml_path = os.path.join(APP_DIRPATH, 'seams', 'seams.toml')   
@@ -72,6 +73,8 @@ def main():
 
     APP_SERVICES_YAML = st.session_state['APP_SERVICES_YAML']       
     SERVICES_DIRPATH = st.session_state['SERVICES_DIRPATH']
+    LOGO_BEGEOSPATIAL = st.session_state['LOGO_BEGEOSPATIAL']
+    
     
     if LOGO_SIDEBAR_URL: st.sidebar.image(LOGO_SIDEBAR_URL)
     sidebar_expander = st.sidebar.expander(label='**SEAMS** - PLAN SUBSIM')
@@ -84,6 +87,18 @@ def main():
             a national implementation of a PLatform for ANalysis of SUBSea IMages.
             """)
         if LOGO_ODF_URL: st.image(LOGO_ODF_URL)
+
+        with st.container():
+            st.markdown("---")
+            #st.write("maintained by:")
+            st.markdown(
+                """
+                <div style='text-align:center'> SEAMS-app mantained by: 
+                <img src='data:image/png;base64,{}' alt='Be GeoSpatial' width='175'>
+                </div>
+                """.format(base64.b64encode(open(LOGO_BEGEOSPATIAL, 'rb').read()).decode()), unsafe_allow_html=True)
+
+            
 
 
     # Load the yaml with core services as activities    

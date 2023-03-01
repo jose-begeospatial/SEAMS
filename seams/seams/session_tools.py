@@ -46,11 +46,12 @@ def show_selected_station_details():
         else:
             st.markdown(f'Selected station: **< not defined >**')
 
-        if stations_done and n_stations:
-            n_done = len(stations_done)
-            st.metric(label='**stations done:**', value=n_done, delta= n_done-n_stations)
-        else:
-            st.metric(label='**stations done:**', value=0, delta= n_stations)
+        #TODO: 
+        #if stations_done and n_stations:
+        #    n_done = len(stations_done)
+        #    st.metric(label='**stations done:**', value=n_done, delta= n_done-n_stations)
+        #else:
+        #    st.metric(label='**stations done:**', value=0, delta= n_stations)
             
     #TODO: remove this is just for development
     with st.sidebar.expander(label='**Development data:**', expanded=False):

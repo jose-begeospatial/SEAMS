@@ -5,6 +5,7 @@ secrets*
 secrets/
 leftovers*
 survey_data/
+/seams/data/
 *Zone.Identifier
 pgdata/
 

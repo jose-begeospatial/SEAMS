@@ -5,7 +5,7 @@ from pathlib import Path
 from collections import OrderedDict
 import streamlit as st
 from seams.bgs_tools import build_activities_menu, get_available_services
-from seams.session_tools import show_selected_station_details
+from seams.session_tools import show_current_station_details
 
 st.set_page_config(layout='wide')
 # Set the Streamlit server address to a specific IP
@@ -114,7 +114,7 @@ def main():
             disabled=False
             )
     
-    show_selected_station_details()
+    show_current_station_details()
  
 
 if __name__ == '__main__':

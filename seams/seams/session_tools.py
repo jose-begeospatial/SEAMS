@@ -15,13 +15,13 @@ def get_session_state_value(key:str):
 
 
 
-def show_selected_station_details():       
+def show_current_station_details():       
 
     # Add to new function
     user = get_session_state_value('user')
     surveyID = get_session_state_value('surveyID')
     n_stations = get_session_state_value('n_stations')
-    selected_station = get_session_state_value('selected_station')
+    current_station = get_session_state_value('current_station')
     stations_done = get_session_state_value('stations_done')
 
     if surveyID:
@@ -41,10 +41,10 @@ def show_selected_station_details():
         else:
             st.markdown(f'n stations: **< not defined >**')
 
-        if selected_station:
-            st.markdown(f"Selected station: **{selected_station}**")
+        if current_station:
+            st.markdown(f"Current station: **{current_station}**")
         else:
-            st.markdown(f'Selected station: **< not defined >**')
+            st.markdown(f'Current station: **< not defined >**')
 
         #TODO: 
         #if stations_done and n_stations:

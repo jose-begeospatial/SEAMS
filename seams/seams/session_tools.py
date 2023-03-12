@@ -22,7 +22,7 @@ def show_current_station_details():
     surveyID = get_session_state_value('surveyID')
     n_stations = get_session_state_value('n_stations')
     current_station = get_session_state_value('current_station')
-    stations_done = get_session_state_value('stations_done')
+    # stations_done = get_session_state_value('stations_done')
 
     if surveyID:
         surveyID = st.session_state['surveyID']
@@ -54,8 +54,8 @@ def show_current_station_details():
         #    st.metric(label='**stations done:**', value=0, delta= n_stations)
             
     #TODO: remove this is just for development
-    with st.sidebar.expander(label='**Development data:**', expanded=False):
-        st.json(st.session_state)
+    #with st.sidebar.expander(label='**Development data:**', expanded=False):
+    #    st.json(st.session_state)
 
 
 

@@ -114,7 +114,7 @@ def get_session_state_value(key:str):
     """
     if key in st.session_state:
         return st.session_state[key]
-
+    
 
 def show_surveyForm(
     delimeters:dict[str, str] = {'tab':'\t', 'comma':',', 'semicolon':';'}, 
@@ -135,16 +135,17 @@ def show_surveyForm(
         with msg_col:
             priority_message = st.empty()
             missing_keys = check_required_session_keys()
-            if len(missing_keys)== 0:
-                priority_message.success('Survey initialization is done!')
-            else:
+            if len(missing_keys)> 0:
+                #priority_message.success('Survey initialization is done!')
+            #else:
                 priority_message.warning(f'**Required**: {missing_keys}')
         
         top_col1,  top_col2, top_col3, top_col4  = st.columns([1,1,1,2])
         with top_col1:
             if 'surveyID' in st.session_state:
-                session_id = st.session_state['surveyID']
-                surveyID = st.text_input(label='**SurveyID:**', placeholder='Write the surveyID', value=session_id)
+                session_id = st.session_state['surveyID'] if st.session_state['surveyID'] else None
+                surveyID = st.text_input(
+                    label='**SurveyID:**', placeholder='Write the surveyID', value=session_id)
             else:
                 surveyID = st.text_input(label='**SurveyID:**', placeholder='Write the surveyID')
 
@@ -190,8 +191,8 @@ def show_surveyForm(
 
             apply_media_btn = st.form_submit_button(label='load files')
 
-            if apply_media_btn:
-                missing_keys = check_required_session_keys()
+            # if apply_media_btn:
+            missing_keys = check_required_session_keys()
 
             
             expander_col1, expander_col2 = st.columns([1,1])
@@ -217,27 +218,26 @@ def show_surveyForm(
 
                     if isinstance(stations_df, pd.DataFrame):
                         stations_dict = get_stations_data(df=stations_df)
-                        if stations_dict:
+                        if stations_dict and surveyID:
                             n_stations = len(stations_dict)
                             update_session_state('n_stations', value=n_stations)
 
-                            data =  ds_survey.storage_strategy.data
+                            #data =  ds_survey.storage_strategy.data
 
-                            if 'surveys' not in data:
-                                data['surveys'] = {}                        
-                            if surveyID not in data['surveys']:
-                                data['surveys'][surveyID] = {}
-                            if 'stations' not in data['surveys'][surveyID]:
-                                data['surveys'][surveyID]['stations'] = {}
-                            #    
-                            data['surveys'][surveyID]['n_stations'] = n_stations
-                            data['surveys'][surveyID]['stations'] = stations_dict
-                            # save to datastorage
-                            ds_survey.store_data(data=data)
+                            if 'surveys' not in ds_survey.storage_strategy.data:
+                                ds_survey.storage_strategy.data['surveys'] = {}                        
+                            if surveyID and surveyID not in ds_survey.storage_strategy.data['surveys']:
+                                ds_survey.storage_strategy.data['surveys'][surveyID] = {'stations':{}}
+                            #
+                                
+                            ds_survey.storage_strategy.data['surveys'][surveyID]['n_stations'] = n_stations
                             
                             stations_dict = has_media(stations_dict=stations_dict, media=media)
-                        
-                        
+                            ds_survey.storage_strategy.data['surveys'][surveyID]['stations'] = stations_dict
+                            
+                            # save to datastorage
+                            ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                            
                             with top_col3:
                                 st.metric('**n stations**', value= n_stations)
 
@@ -261,8 +261,14 @@ def show_surveyForm(
                             callback=error_callback, 
                             )
                         update_session_state(key='videos_dict', value=videos_dict)
-                        if surveyID in ds_survey.storage_strategy.data['surveys']:
-                            ds_survey.storage_strategy.data['surveys'][surveyID]['videos'] = videos_dict
+                        if surveyID and surveyID in ds_survey.storage_strategy.data['surveys']:
+                            # ds_survey.storage_strategy.data['surveys'][surveyID]['videos'] = videos_dict
+                            for s, v in videos_dict.items():
+                                ds_survey.storage_strategy.data['surveys'][surveyID]['stations'][s]['media']['video'] = v
+                            
+                            # save to datastore
+                            ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                            
 
 
 
@@ -280,17 +286,15 @@ def show_surveyForm(
                         options=stations_to_interpret)
                     
                     if current_station:
-                        if 'current_station' not in ds_survey.storage_strategy.data:
-                            ds_survey.storage_strategy.data['current_station'] = current_station
-                        if current_station != ds_survey.storage_strategy.data['current_station']:
-                            ds_survey.storage_strategy.data['current_station'] = current_station
-                            ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                        ds_survey.storage_strategy.data['current_station'] = current_station                     
+                        ds_survey.store_data(data=ds_survey.storage_strategy.data)
 
                         update_session_state(
                             key='current_station',
                             value=current_station
                             )
                         
+                #TODO: depreciate the following        
                 if surveyID:
                     with top_col3:                        
                         survey_dict[surveyID] = stations_dict
@@ -376,13 +380,18 @@ def get_stations_data(
     
 
 def check_required_session_keys():
+    """To be depreciated in favour of the data store
+
+    Returns:
+        _type_: _description_
+    """
 
     required_keys = []
     missing_keys = []
 
     media = get_session_state_value('media')
     
-    # quick fix as there is a refresh lag while having the s
+    # quick fix as there is a refresh lag
     if media == 'video':
         required_keys =  ['user', 'surveyID', 'media', 'current_station', 'survey_dict', 'videos_dict']
     if media == 'photos':
@@ -401,6 +410,15 @@ def check_required_session_keys():
             missing_keys.append(k)
     return missing_keys
 
+def ds_get_current_user():
+    """ Returns the current user from the data_store
+
+    Returns:
+        str: Saved current user from previous session
+    """
+    if 'current_user' in ds_survey.storage_strategy.data:
+        return ds_survey.storage_strategy.data['current_user']
+#
 
 def main():
     """
@@ -413,7 +431,14 @@ def main():
     with st.container():
         user_col1, user_col2 = st.columns(2)
         with user_col1:
-            user = st.selectbox("**Select a user:**", ['< new user >'] + users_list)
+            _user = ds_get_current_user()
+            # get the index of the current user in the user_list
+            idx = users_list.index(_user) if _user in users_list else None
+            
+            user = st.selectbox(
+                "**Select a user:**", ['< new user >'] + users_list,
+                index= idx + 1 if idx else 0
+                )
             st.session_state['user'] = user
             
 

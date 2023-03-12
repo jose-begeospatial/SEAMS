@@ -229,3 +229,35 @@ def get_coordinates_epsg3006_from_geohash(geohash:str, outProj:str = 'epsg:3006'
     return x, y 
 
 
+
+def create_subdirectory(path, subdir):
+    """
+    Creates a new subdirectory if it does not exist.
+
+    Args:
+        path (str): The path to the parent directory.
+        subdir (str): The name of the subdirectory to create.
+
+    Returns:
+        str: The full path to the subdirectory.
+    """
+
+    # Create the full path to the subdirectory
+    full_path = os.path.join(path, subdir)
+
+    # Check if the subdirectory exists
+    if os.path.isdir(full_path):
+        print(f'Subdirectory {full_path} already exists')
+    else:
+        # Create the subdirectory if it does not exist
+        try:
+            os.mkdir(full_path)
+            print(f'Subdirectory {full_path} created')
+        except OSError as e:
+            print(f'Error occurred while creating subdirectory: {e.strerror}')
+            return None
+
+    return full_path
+
+
+

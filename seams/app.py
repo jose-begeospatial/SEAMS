@@ -7,6 +7,7 @@ import streamlit as st
 from seams.bgs_tools import build_activities_menu, get_available_services
 from seams.session_tools import show_current_station_details
 
+
 st.set_page_config(layout='wide')
 # Set the Streamlit server address to a specific IP
 #st.set_option('server.address', '172.16.238.2')

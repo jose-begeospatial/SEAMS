@@ -14,11 +14,29 @@
   url: "surveys.py"
 
 - 
-  name: "Video"
-  description: "Test video routines"
-  url: "video.py"
+  name: "station preprocessing"
+  description: "Station and video preprocessing"
+  url: "prep_station.py"
 
 - 
-  name: "db admin"
-  description: "Postgres database admin"
-  url: "db_admin.py"
+  name: "benthic interpretation"
+  description: "Benthic image interpretation"
+  url: "benthic_interpretation.py"
+
+- 
+  name: "benthic annotations"
+  description: "Benthic image annotations"
+  url: "benthic_annotations.py"
+
+- 
+  name: "reports"
+  description: "Survey report"
+  url: "survey_report.py"
+
+- 
+  name: "underwater interpretation"
+  description: "Underwater interpretation"
+  url: "underwater_interpretation.py"
+
+
+

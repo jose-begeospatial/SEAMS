@@ -3,7 +3,9 @@ from PIL import Image
 from cv2 import drawMarker, putText, LINE_AA, MARKER_CROSS, FONT_HERSHEY_SIMPLEX
 from shapely import Polygon, Point
 import random
-
+from dataclasses import dataclass, field
+from itertools import count
+from typing import List
 
 
 def floating_marker(image, dotpoints: list):
@@ -54,7 +56,7 @@ def create_bounding_box(image: Image.Image) -> Polygon:
     return Polygon([(0, 0), (width, 0), (width, height), (0, height)])
 
 
-def add_random_noise_to_polygon_centroid(polygon:Polygon, noise_percent: float = None)->Point:
+def add_random_noise_to_polygon_centroid(polygon:Polygon, noise_percent: float)->Point:
     """Adds a random noise 
     
     Args:
@@ -144,3 +146,38 @@ def markers_grid(
                 centroids.append(centroid)
 
     return centroids    
+
+@dataclass(kw_only=True)
+class DotPoint:
+    frame_id: int
+    x: float
+    y: float
+    count: int = field(default_factory=count().__next__, init=False)
+    biota: list[str] = field(default_factory=list)
+    substrates: list[str] = field(default_factory=list)
+
+    def __post_init__(self):
+        self.count += 1
+
+
+def dotpoints_grid(filepath:str,
+    n_rows = 3,
+    enable_random = False,
+    noise_percent = 0.0,
+    frame_id: int = 1,
+    ):
+
+    dotpoints = []
+    image = Image.open(filepath)       
+    # create bounding box polygon
+    bbox = create_bounding_box(image=image)
+    centroids = markers_grid(bbox, n_rows=n_rows, enable_random=enable_random, noise_percent=noise_percent)
+
+    for centroid in centroids:
+        dotpoint = DotPoint(frame_id=frame_id, x=int(centroid.x), y=int(centroid.y))
+        dotpoints.append(dotpoint)
+                
+    # Add the floating button to the image
+    modified_image = floating_marker(image, dotpoints=dotpoints)
+            
+    return modified_image

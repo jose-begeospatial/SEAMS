@@ -1,3 +1,6 @@
+# ## docker run -rm -d --name seams-app -p 8501:8501 -v $(pwd):/home/user --network seams-network -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) seams-app:latest streamlit run /home/user/seams/seams/app.py
+# ## docker run -it --name seams-app -p 8501:8501 -v  /home/begeospatial/develop/SEAMS/seams/seams:/home/user/seams --network seams-network seams-app:latest /bin/bash
+
 ARG USER_ID
 ARG GROUP_ID=1000
 
@@ -51,17 +54,15 @@ COPY requirements.txt .
 # Install the dependencies listed
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the app source code to the working directory
-#COPY ./seams ./seams
-
 # Expose the default Streamlit port
 EXPOSE 8501
 
+USER user
 # Set the working directory to /home/user
-WORKDIR /home/user/seams
+WORKDIR /home/user/
 
 # Set the container command to start the app
-CMD ["streamlit", "run", "~/seams/app.py"]
+CMD ["streamlit", "run", "/home/user/seams/app.py"]
 
 
 

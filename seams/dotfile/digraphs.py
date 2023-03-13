@@ -12,6 +12,12 @@ digraph {
 }
 '''
 
+workflow = '''
+digraph {
+    
+}
+'''
+
 photo_utils = '''
     digraph {
         read_photos

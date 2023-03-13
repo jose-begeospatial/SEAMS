@@ -6,19 +6,33 @@
 - 
   name: 'home'
   description: 'SEAMS Home'
-  url: "/home/user/seams/seams/services/home.py"
+  url: "home.py"
 
 - 
-  name: 'surveys'
+  name: '(1) survey initialization'
   description: 'Survey initialization'
-  url: "/home/user/seams/seams/services/surveys.py"
+  url: "surveys.py"
 
 - 
-  name: "Video"
-  description: "Test video routines"
-  url: "/home/user/seams/seams/services/video.py"
+  name: "(2) station preprocessing"
+  description: "Station and video preprocessing"
+  url: "prep_station.py"
 
 - 
-  name: "db admin"
-  description: "Postgres database admin"
-  url: "/home/user/seams/seams/services/db_admin.py"
+  name: "(3) benthic interpretation"
+  description: "Benthic image interpretation"
+  url: "benthic_interpretation.py"
+
+#- 
+#  name: "benthic annotations"
+#  description: "Benthic image annotations"
+#  url: "benthic_annotations.py"
+
+#- 
+#  name: "reports"
+#  description: "Survey report"
+#  url: "survey_report.py"
+
+
+
+

@@ -21,16 +21,16 @@ def floating_marker(image, dotpoints: list):
 
     for dotpoint in dotpoints:
         drawMarker(image, (dotpoint.x, dotpoint.y), marker_color, markerType= MARKER_CROSS, 
-    markerSize=200, thickness=2, line_type= LINE_AA)
+    markerSize=100, thickness=2, line_type= LINE_AA)
 
         font = FONT_HERSHEY_SIMPLEX  # normal size sans-serif font
-        text_origin = (dotpoint.x-30, dotpoint.y + 200)
-        fontScale = 3
+        text_origin = (dotpoint.x-50, dotpoint.y + 50)
+        fontScale = 1
         fontThickness = 2
 
         putText(
             image, 
-            str(dotpoint.count), 
+            str(dotpoint.id), 
             text_origin, 
             font, 
             fontScale, 
@@ -152,12 +152,11 @@ class DotPoint:
     frame_id: int
     x: float
     y: float
-    count: int = field(default_factory=count().__next__, init=False)
-    biota: list[str] = field(default_factory=list)
+    id: int 
+    taxons: list[str] = field(default_factory=list)
     substrates: list[str] = field(default_factory=list)
 
-    def __post_init__(self):
-        self.count += 1
+
 
 
 def dotpoints_grid(filepath:str,
@@ -173,8 +172,8 @@ def dotpoints_grid(filepath:str,
     bbox = create_bounding_box(image=image)
     centroids = markers_grid(bbox, n_rows=n_rows, enable_random=enable_random, noise_percent=noise_percent)
 
-    for centroid in centroids:
-        dotpoint = DotPoint(frame_id=frame_id, x=int(centroid.x), y=int(centroid.y))
+    for i, centroid in enumerate(centroids):
+        dotpoint = DotPoint(frame_id=frame_id, x=int(centroid.x), y=int(centroid.y), id=i+1)
         dotpoints.append(dotpoint)
                 
     # Add the floating button to the image

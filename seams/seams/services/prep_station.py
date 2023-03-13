@@ -126,35 +126,35 @@ def main():
 
                             st.success('frames available in: {}'.format(current_video_frames_dirpath))
 
-                            with st.spinner():
-                                if frames:
-                                    # TODO: deleted all the non random selected frames
-                                    random_frames = select_random_frames(
-                                        frames=frames, 
-                                        num_frames=10)
+                            if frames:
+                                # TODO: deleted all the non random selected frames
+                                random_frames = select_random_frames(
+                                    frames=frames, 
+                                    num_frames=10)
+                                
+                                if random_frames:
                                     
-                                    if random_frames:
-                                        
-                                        ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                                    ds_survey.store_data(data=ds_survey.storage_strategy.data)
 
-                                        key_frames = st.multiselect(
-                                            label = '**selected random frames:**',
-                                            options= frames,
-                                            default= random_frames
-                                            )
-                                        
-                                        if len(key_frames) < 10:
-                                            st.warning('Less than 10 frames selected. Requirement is 10 frames')
-                                            
-                                        if len(key_frames) > 10:
-                                            st.warning('More than 10 frames selected. Requirement is 10 frames')
+                                    key_frames = st.multiselect(
+                                        label = '**selected random frames:**',
+                                        options= frames,
+                                        default= random_frames
+                                        )
+                                    
+                                    if len(key_frames) < 10:
+                                        st.warning('Less than 10 frames selected. Requirement is 10 frames')
+                                    elif len(key_frames) > 10:
+                                        st.warning('More than 10 frames selected. Requirement is 10 frames')
+                                    else:
+                                        random_frames = key_frames
 
-                                        #TODO: ensure that requirement of 10 frames
-                                        current_frames = {k: frames[k] for k in key_frames }
-                                        ds_survey.storage_strategy.data['surveys'][surveyID]['stations'][current_station]['media']['frames'] = current_frames
-                                        ds_survey.storage_strategy.data['current_frames'] = current_frames
-                                        # saving
-                                        ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                                    #TODO: ensure that requirement of 10 frames
+                                    current_frames = {k: frames[k] for k in key_frames }
+                                    ds_survey.storage_strategy.data['surveys'][surveyID]['stations'][current_station]['media']['frames'] = current_frames
+                                    ds_survey.storage_strategy.data['current_frames'] = current_frames
+                                    # saving
+                                    ds_survey.store_data(data=ds_survey.storage_strategy.data)
                     else:
                         st.warning('Error: no video found in the')
 

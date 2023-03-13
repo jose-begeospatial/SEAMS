@@ -36,7 +36,15 @@ current_station = ds_survey.storage_strategy.data['current_station']
 substrates = [k[0] for k in substrates]
 phytobenthosCommonTaxa = [k for k in phytobenthosCommonTaxa]
 
-frames = ds_survey.storage_strategy.data['surveys'][current_surveyID]['stations'][current_station]['media']['frames']
+media = ds_survey.storage_strategy.data['surveys'][current_surveyID]['stations'][current_station]['media']
+frames = media['frames']
+
+if 'interpreted' not in media:
+    media['interpreted'] = {}
+
+
+
+frame_filepath = None
 
 with st.expander(
     label='**Benthic interpretation**',
@@ -54,9 +62,13 @@ with st.expander(
             frame_filepath = frames[frameID]
 
     with header_col2:
-        n_rows = st.slider(label='n Rows', min_value=3, max_value=5, )
+        n_rows = st.slider(label='***n*** dotpoint rows', 
+                           min_value=3, 
+                           max_value=5, 
+                           disabled=False,)
     with header_col3:
         enable_random = st.checkbox(label='enable random', value=False)
+        enable_ai = st.checkbox(label='enable AI', value=False, disabled=True)
     with header_col4:
         noise_percent = st.slider(label='pepper and salt noise', min_value=0.0, max_value=1.0, step=0.1)
 
@@ -65,81 +77,74 @@ with st.expander(
     #    st.checkbox(label='randomize dotpoints', value=False)
     #    st.checkbox(label='enable AI', value=False)
 
-    with header_col5:
-        with st.container():
-            #st.write('**dotpoints**')
-            dotpoints = st.multiselect(
-                label='**dotpoints done**',
-                options= [
-                
-                '01',
-                '02',
-                '03',
-                '04',
-                '05',
-                '06',
-                '07',
-                '08',
-                '09',
-                '10'],
-                default=['01','03','08', '10']
+    if frame_filepath:               
 
-            )
-            
-with st.container():
-    vcol1, vcol2 = st.columns([5,1])
-    
-    if frame_filepath:
-        # Select the image file
-        with st.spinner("Creating dotpoints over image frame"):
-                
-            modified_image = dotpoints_grid(
-                
-                filepath=frame_filepath,
-                n_rows=n_rows,
-                enable_random=enable_random,
-                noise_percent=noise_percent
-                )
-            
-        with vcol1:
-
-            if modified_image is not None:
-                st.image(
-                    modified_image, 
-                    use_column_width=True,
-                    )
-        with vcol2:
-            #selected_frame = st.selectbox(label='current frame', options=[f'frame {i+1}' for i in range(0,10)])
-
-            substrates = st.selectbox(
-                label='Susbstrates',
-                options=substrates )
-            
-            taxons = st.multiselect(
-                label='Taxons', 
-                options=phytobenthosCommonTaxa)
-            
+        with header_col5:
             with st.container():
-                is_all = st.checkbox(
-                    label = 'select all', 
-                    value=False)
-                selected_dotPoints = st.multiselect(
-                    'dotPoint presence', 
-                    options=[f'{i+1}' for i in range(0,10)])
-
-            st.markdown('---')
-            with st.expander(label='extra occurrences'):
-                extra_ocurrences =  st.multiselect(
-                    label='**ocurrences**',
-                    
-                    options=phytobenthosCommonTaxa
+                #st.write('**dotpoints**')
+                dotpoints = st.multiselect(
+                    label='**dotpoints done**',
+                    options= media['interpreted'],
                 )
-
+                    
+        with st.container():
+            vcol1, vcol2 = st.columns([5,1])
             
-                shells = st.selectbox(label='SGU Limecola baltica shell', options={'no':0, 'förekommande':1, 'måttligt':2,'rikligt':3})
-                krypspår = st.selectbox(label='Krypspår', options={'no':0, 'förekommande':1, 'måttligt > 10%':2,'rikligt > 50%':3})
-                sandwave = st.number_input(label='Sandwave (cm)',min_value=-1.0, max_value=500.0, step=1.0, value=-1.0)
-                frame_flags = st.multiselect(label = 'flags', options=['Dålig bildkvalitet', 'Dålig sikt/vattenkvalitet'])
-                other_presences= st.multiselect(label='other presences', options=['fish', 'trash can', 'dolphin'])
-                fieldNotes = st.text_area(label='Interpretation Notes')
+            if frame_filepath:
+                # Select the image file
+                with st.spinner("Creating dotpoints over image frame"):
+                        
+                    modified_image = dotpoints_grid(
+                        
+                        filepath=frame_filepath,
+                        n_rows=n_rows,
+                        enable_random=enable_random,
+                        noise_percent=noise_percent
+                        )
+                    
+                with vcol1:
+
+                    if modified_image is not None:
+                        st.image(
+                            modified_image, 
+                            use_column_width=True,
+                            )
+                with vcol2:
+                    #selected_frame = st.selectbox(label='current frame', options=[f'frame {i+1}' for i in range(0,10)])
+
+                    substrates = st.selectbox(
+                        label='Susbstrates',
+                        options=substrates )
+                    
+                    taxons = st.multiselect(
+                        label='Taxons', 
+                        options=phytobenthosCommonTaxa)
+                    
+                    with st.container():
+                        is_all = st.checkbox(
+                            label = 'select all', 
+                            value=False)
+                        selected_dotPoints = st.multiselect(
+                            'dotPoint presence', 
+                            options=[f'{i+1}' for i in range(0,10)])
+
+                    st.markdown('---')
+                    with st.container():
+                        extra_ocurrences =  st.multiselect(
+                            label='**extra ocurrences**',
+                            
+                            options=phytobenthosCommonTaxa
+                        )
+
+                    
+                        shells = st.selectbox(label='SGU Limecola baltica shell', options={'no':0, 'förekommande':1, 'måttligt':2,'rikligt':3})
+                        krypspår = st.selectbox(label='Krypspår', options={'no':0, 'förekommande':1, 'måttligt > 10%':2,'rikligt > 50%':3})
+                        sandwave = st.number_input(label='Sandwave (cm)',min_value=-1.0, max_value=500.0, step=1.0, value=-1.0)
+                        frame_flags = st.multiselect(label = 'flags', options=['Dålig bildkvalitet', 'Dålig sikt/vattenkvalitet'])
+                        
+                        fieldNotes = st.text_area(label='Interpretation Notes')
+
+show_data_expander = st.expander(label='**show data**', expanded=False)
+with show_data_expander:
+    st.write(ds_survey.storage_strategy.data)
 

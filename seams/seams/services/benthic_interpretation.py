@@ -46,8 +46,7 @@ if 'interpreted' not in media:
         i+1: {
             'frame_id': k, 
             'frame_filepath': frames[k], 
-            'status': -1,
-            'dotpoints': {}
+            'status': -1,            
              } for i, k in enumerate(frames.keys())  }
 
 
@@ -89,7 +88,7 @@ with st.expander(
             dotpoints = st.multiselect(
                 label='**frames done**',
                 options= is_not_done_list,
-                default=is_done_list,
+                default=is_done_list if is_done_list else [],
                 disabled=True
             )
 

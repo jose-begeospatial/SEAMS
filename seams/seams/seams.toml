@@ -3,7 +3,7 @@ api = "0.1"
 [logos]
 LOGO_SIDEBAR_URL = "https://www.sgu.se/globalassets/startsida/ovre-droppyta-bred/sgu-logotype-blue-eng-489.png"
 LOGO_ODF_URL = "https://oceandatafactory.se/wp-content/uploads/2020/03/cropped-logo.png"
-
+LOGO_BEGEOSPATIAL = "https://drive.google.com/file/d/1gH1yKjUiQn6BRYHwYgO4z4VCrkKElu6K/view?usp=sharing"
 
 [affiliations]
 SGU = "Sveriges Geologiska Undersökning"

@@ -33,6 +33,7 @@ pgdata/
 *.cfg
 !cfg/yolov3*.cfg
 !sgu-logotype-blue-eng-489.png
+!Logo_BeGeospatial_black_text.png
 
 # stations specific ending
 *_stations.csv 

@@ -1,7 +1,10 @@
+# docker build -t seams-app -f Dockerfile.seams .
+# docker network create seams-network 
+
 # ## docker run -rm -d --name seams-app -p 8501:8501 -v $(pwd):/home/user --network seams-network -e USER_ID=$(id -u) -e GROUP_ID=$(id -g) seams-app:latest streamlit run /home/user/seams/app.py
 # ## docker run -it --name seams-app -p 8501:8501 -v  /home/begeospatial/develop/SEAMS/seams/seams:/home/user/seams --network seams-network seams-app:latest /bin/bash
 # ## docker run -d --name seams-app -p 8501:8501 -v  /home/begeospatial/develop/SEAMS/seams/seams:/home/user/seams --network seams-network seams-app:latest streamlit run /home/user/seams/app.py
-
+# ## docker run -it --name seams-app -p 8501:8501 -v  /home/jobel/bgs/SEAMS/seams/:/home/user/seams --network seams-network seams-app:latest streamlit run /home/user/seams/app.py
 ARG USER_ID
 ARG GROUP_ID=1000
 

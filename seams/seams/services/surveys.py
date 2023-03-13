@@ -456,7 +456,9 @@ def main():
         #  Shows the survey form
         show_surveyForm()
 
-    st.write(ds_survey.storage_strategy.data)
+    show_data_expander = st.expander(label='**show data**', expanded=False)
+    with show_data_expander:
+        st.write(ds_survey.storage_strategy.data)
                 
         
 # ----------

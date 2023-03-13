@@ -70,7 +70,7 @@ def main():
                 
 
                 video_info =  get_video_info(video_path=video_filepath)
-                with st.expander(label='**video info**', expanded=True):
+                with st.expander(label='**video info**', expanded=False):
                     if video_info:
                         st.write(video_info)
                         _vcodec = video_info['codec']
@@ -107,41 +107,57 @@ def main():
                         else:
                             ds_survey.store_data(data=data)               
                 with st.form(key='extract_frames_form', clear_on_submit=True):
-                    submit_extract = st.form_submit_button('extract video frames every 5 sec')
-                    if submit_extract:
-                        current_video_frames_dirpath = create_subdirectory(FRAMES_DIRPATH, video_name)
-                        current_video_frames = {video_name: current_video_frames_dirpath}
-                        
-                        with st.spinner():
-                                
-                            frames = extract_frames(
-                                video_filepath=video_filepath, 
-                                frames_dirpath= current_video_frames_dirpath)
+
+                    if video_info:                            
+                        submit_extract = st.form_submit_button('extract video frames every 5 sec')
+                        if submit_extract:
+                            current_video_frames_dirpath = create_subdirectory(FRAMES_DIRPATH, video_name)
+                            current_video_frames = {video_name: current_video_frames_dirpath}
                             
-                        
-                            ds_survey.storage_strategy.data['current_video_frames'] = current_video_frames
-                            ds_survey.store_data(ds_survey.storage_strategy.data)
-
-                        st.success('frames available in: {}'.format(current_video_frames_dirpath))
-
-                        with st.spinner():
-                            if frames:
-                                # TODO: deleted all the non random selected frames
-                                random_frames = select_random_frames(
-                                    frames=frames, 
-                                    num_frames=10)
+                            with st.spinner():
+                                    
+                                frames = extract_frames(
+                                    video_filepath=video_filepath, 
+                                    frames_dirpath= current_video_frames_dirpath)
                                 
-                        if random_frames:
-                            ds_survey.storage_strategy.data['surveys'][surveyID]['stations'][current_station]['media']['frames'] = random_frames
-                            ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                            
+                                ds_survey.storage_strategy.data['current_video_frames'] = current_video_frames
+                                ds_survey.store_data(ds_survey.storage_strategy.data)
 
-                            st.write(random_frames)
+                            st.success('frames available in: {}'.format(current_video_frames_dirpath))
 
-                            key_frames = st.multiselect(
-                                label = 'selected random frames',
-                                options= frames,
-                                default= random_frames
-                                )
+                            with st.spinner():
+                                if frames:
+                                    # TODO: deleted all the non random selected frames
+                                    random_frames = select_random_frames(
+                                        frames=frames, 
+                                        num_frames=10)
+                                    
+                                    if random_frames:
+                                        
+                                        ds_survey.store_data(data=ds_survey.storage_strategy.data)
+
+                                        key_frames = st.multiselect(
+                                            label = '**selected random frames:**',
+                                            options= frames,
+                                            default= random_frames
+                                            )
+                                        
+                                        if len(key_frames) < 10:
+                                            st.warning('Less than 10 frames selected. Requirement is 10 frames')
+                                            
+                                        if len(key_frames) > 10:
+                                            st.warning('More than 10 frames selected. Requirement is 10 frames')
+
+                                        #TODO: ensure that requirement of 10 frames
+                                        current_frames = {k: frames[k] for k in key_frames }
+                                        ds_survey.storage_strategy.data['surveys'][surveyID]['stations'][current_station]['media']['frames'] = current_frames
+                                        ds_survey.storage_strategy.data['current_frames'] = current_frames
+                                        # saving
+                                        ds_survey.store_data(data=ds_survey.storage_strategy.data)
+                    else:
+                        st.warning('Error: no video found in the')
+
                         
                         
         with col2:
@@ -150,13 +166,15 @@ def main():
                 st.write(station)
         
 
-    
-    if _vcodec == "avc1":
+    #TODO: show videoplayer here    
+    #if _vcodec == "avc1":
 
-        with st.expander(label='**video player**'):
-            pass
+    #    with st.expander(label='**video player**'):
+    #        pass
     
-    st.write(ds_survey.storage_strategy.data)
+    show_data_expander = st.expander(label='**show data**', expanded=False)
+    with show_data_expander:
+        st.write(ds_survey.storage_strategy.data)
 
 # --
 # -------------------------------------------------------

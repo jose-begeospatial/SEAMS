@@ -9,34 +9,30 @@
   url: "home.py"
 
 - 
-  name: 'surveys'
+  name: '(1) survey initialization'
   description: 'Survey initialization'
   url: "surveys.py"
 
 - 
-  name: "station preprocessing"
+  name: "(2) station preprocessing"
   description: "Station and video preprocessing"
   url: "prep_station.py"
 
 - 
-  name: "benthic interpretation"
+  name: "(3) benthic interpretation"
   description: "Benthic image interpretation"
   url: "benthic_interpretation.py"
 
-- 
-  name: "benthic annotations"
-  description: "Benthic image annotations"
-  url: "benthic_annotations.py"
+#- 
+#  name: "benthic annotations"
+#  description: "Benthic image annotations"
+#  url: "benthic_annotations.py"
 
-- 
-  name: "reports"
-  description: "Survey report"
-  url: "survey_report.py"
+#- 
+#  name: "reports"
+#  description: "Survey report"
+#  url: "survey_report.py"
 
-- 
-  name: "underwater interpretation"
-  description: "Underwater interpretation"
-  url: "underwater_interpretation.py"
 
 
 

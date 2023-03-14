@@ -25,6 +25,7 @@ data/samples/*
 *_videos.csv 
  
 !sgu-logotype-blue-eng-489.png
+!Logo_BeGeospatial_black_text.png
 
 # Neural Network weights -----------------------------------------------------------------------------------------------
 **/*.pt

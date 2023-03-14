@@ -14,6 +14,11 @@ digraph {
 
 workflow = '''
 digraph {
+    survey -> prep_station -> benthic_interpretation;
+
+    survey [shape=box]
+    prep_station [shape=box]
+    benthic_interpretation [shape=box]
     
 }
 '''

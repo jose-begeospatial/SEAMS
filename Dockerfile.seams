@@ -5,6 +5,8 @@
 # ## docker run -it --name seams-app -p 8501:8501 -v  /home/begeospatial/develop/SEAMS/seams/seams:/home/user/seams --network seams-network seams-app:latest /bin/bash
 # ## docker run -d --name seams-app -p 8501:8501 -v  /home/begeospatial/develop/SEAMS/seams/seams:/home/user/seams --network seams-network seams-app:latest streamlit run /home/user/seams/app.py
 # ## docker run -it --name seams-app -p 8501:8501 -v  /home/jobel/bgs/SEAMS/seams/:/home/user/seams --network seams-network seams-app:latest streamlit run /home/user/seams/app.py
+docker run -it --name seams-app -p 8501:8501 -v  C:\data\seams\seams:/home/user/seams --network seams-network seams-app:latest streamlit run /home/user/seams/app.py
+
 ARG USER_ID
 ARG GROUP_ID=1000
 
